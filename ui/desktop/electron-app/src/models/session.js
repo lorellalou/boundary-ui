@@ -2,6 +2,9 @@ const treeKill = require('tree-kill');
 const sanitizer = require('../utils/sanitizer.js');
 const { isWindows } = require('../helpers/platform.js');
 const { spawnAsyncJSONPromise } = require('../helpers/spawn-promise.js');
+const { dialog } = require('electron')
+const { spawn, spawnSync } = require('child_process');
+
 
 class Session {
   #id;
@@ -11,6 +14,8 @@ class Session {
   #process;
   #targetId;
   #proxyDetails;
+  #username;
+  #password;
 
   /**
    * Initialize a session to a controller address
@@ -53,9 +58,36 @@ class Session {
       this.#proxyDetails = spawnedSession.response;
       this.#process = spawnedSession.childProcess;
       this.#id = this.#proxyDetails.session_id;
+      this.#username = this.#proxyDetails.credentials[0].secret.decoded.username;
+      this.#password = this.#proxyDetails.credentials[0].secret.decoded.password;
+      delete this.#proxyDetails.credentials;
+
+      spawnSync('cmdkey', [
+        '/generic:' + this.#proxyDetails.address,
+        '/user:' + this.#username,
+        '/pass:' + this.#password]);
+
+      spawn('mstsc',[
+        '/v:' + this.#proxyDetails.address + ':' + this.#proxyDetails.port,
+        '/admin']);
+
+      spawnSync('cmdkey ',[
+        '/delete:' + this.#proxyDetails.address ,
+        '/admin']);
+
       return this.#proxyDetails;
     });
   }
+
+  objToString (obj) {
+    var str = '';
+    for (var p in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, p)) {
+            str += p + '::' + obj[p] + '\n';
+        }
+    }
+    return str;
+}
 
   /**
    * Stop proxy process used by session.
