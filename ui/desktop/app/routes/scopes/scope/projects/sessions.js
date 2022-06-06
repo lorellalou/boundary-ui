@@ -102,4 +102,12 @@ export default class ScopesScopeProjectsSessionsRoute extends Route {
     this.status = [];
     this.project = [];
   }
+
+  /**
+   * refreshes session data.
+   */
+  @action
+  async refreshSessions() {
+    return this.refresh();
+  }
 }

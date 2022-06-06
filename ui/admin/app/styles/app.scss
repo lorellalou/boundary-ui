@@ -217,3 +217,20 @@
 .nowrap {
   white-space: nowrap;
 }
+
+// Spinning animation for refresh button icon
+@media (prefers-reduced-motion: no-preference) {
+  .is-loading {
+    .rose-icon {
+      @keyframes hds-flight-icon-animation-rotation {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      > svg {
+        animation: hds-flight-icon-animation-rotation 0.7s linear infinite;
+      }
+    }
+  }
+}

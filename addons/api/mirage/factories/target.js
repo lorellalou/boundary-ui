@@ -2,6 +2,7 @@ import factory from '../generated/factories/target';
 import { trait } from 'ember-cli-mirage';
 import { random, datatype } from 'faker';
 import permissions from '../helpers/permissions';
+import generateId from '../helpers/id';
 
 const randomBoolean = (chance = 0.5) => Math.random() < chance;
 const hostSetChance = 0.3;
@@ -21,10 +22,13 @@ export default factory.extend({
       'remove-credential-sources',
     ],
 
+  id: () => generateId('t_'),
+
   /**
    * -1 means "unlimited" and we want to generate these on occasion.
    */
   session_connection_limit: () => random.arrayElement([-1, datatype.number()]),
+  worker_filter: (i) => (i % 2 === 0 ? random.words() : null),
   type: (i) => types[i % types.length],
   /**
    * Generates attributes fields by type.

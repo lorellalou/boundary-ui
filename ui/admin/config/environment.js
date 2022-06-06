@@ -2,6 +2,25 @@
 
 const APP_NAME = process.env.APP_NAME || 'Boundary';
 const API_HOST = process.env.API_HOST || '';
+const EDITION = process.env.EDITION || 'oss'; // Default edition is OSS
+
+// Object that defines edition features.
+const featureEditions = {
+  oss: {
+    'primary-auth-method': true,
+    oidc: true,
+    'oidc-crud': true,
+    'oidc-account-crud': true,
+    search: false,
+    filter: true,
+    'credential-store': true,
+    'managed-groups': true,
+  },
+};
+featureEditions.enterprise = {
+  ...featureEditions.oss,
+  'ssh-target': true,
+};
 
 module.exports = function (environment) {
   let ENV = {
@@ -35,7 +54,7 @@ module.exports = function (environment) {
     companyName: 'HashiCorp',
 
     notifyTimeout: 4000,
-    sessionPollingTimeoutSeconds: 2.5,
+    sessionPollingTimeoutSeconds: 300,
     oidcPollingTimeoutSeconds: 1,
 
     documentation: {
@@ -68,6 +87,7 @@ module.exports = function (environment) {
         target: '/targets',
         'target.new': '/targets/new',
         'target.add-host-sources': '/targets/add-host-sets',
+        'target.worker-filters': '/targets/worker-filters',
         user: '/users',
       },
     },
@@ -90,17 +110,7 @@ module.exports = function (environment) {
       directory: '../../addons/api/mirage',
     },
 
-    featureFlags: {
-      'primary-auth-method': true,
-      oidc: true,
-      'oidc-crud': true,
-      'oidc-account-crud': true,
-      search: false,
-      filter: true,
-      'credential-store': true,
-      'managed-groups': true,
-      'ssh-target': false,
-    },
+    featureFlags: featureEditions[EDITION],
   };
 
   // Unsafe policy is necessary in development and test environments, but should
@@ -157,6 +167,7 @@ module.exports = function (environment) {
     ENV.enableConfirmService = false;
 
     // Enable tests for development features
+    ENV.featureFlags['ssh-target'] = true;
   }
 
   if (environment === 'production') {

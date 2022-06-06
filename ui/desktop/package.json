@@ -53,6 +53,8 @@
     "ember-named-blocks-polyfill": "^0.2.5"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/plugin-proposal-decorators": "^7.17.8",
     "@doyensec/electronegativity": "^1.9.1",
     "@ember/optional-features": "^2.0.0",
     "@ember/render-modifiers": "^2.0.2",
@@ -60,7 +62,6 @@
     "@glimmer/component": "^1.0.4",
     "@glimmer/tracking": "^1.0.4",
     "@playwright/test": "^1.15.0",
-    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "broccoli-asset-rev": "^3.0.0",
     "clipboard": "^2.0.8",
@@ -98,9 +99,9 @@
     "ember-template-lint": "^3.7.0",
     "ember-template-lint-plugin-prettier": "^2.0.0",
     "ember-wormhole": "^0.6.0",
-    "eslint": "^7.32.0",
+    "eslint": "^8.12.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-ember": "^10.5.4",
+    "eslint-plugin-ember": "^10.5.9",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-qunit": "^6.2.0",
