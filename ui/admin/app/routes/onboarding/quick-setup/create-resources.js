@@ -4,7 +4,7 @@ import { action } from '@ember/object';
 import { loading } from 'ember-loading';
 import { notifyError } from 'core/decorators/notify';
 
-export default class ScopesScopeOnboardingQuickSetupCreateResourcesRoute extends Route {
+export default class OnboardingQuickSetupCreateResourcesRoute extends Route {
   // =services
 
   @service router;
@@ -26,6 +26,7 @@ export default class ScopesScopeOnboardingQuickSetupCreateResourcesRoute extends
         description: 'Sample project created by quick setup',
       }),
       hostCatalog: this.store.createRecord('host-catalog', {
+        type: 'static',
         name: 'All Databases',
         description: 'Sample host catalog created by quick setup',
       }),
@@ -38,8 +39,12 @@ export default class ScopesScopeOnboardingQuickSetupCreateResourcesRoute extends
         description: 'Sample host created by quick setup',
       }),
       target: this.store.createRecord('target', {
+        type: 'tcp',
         name: 'CRM Database target',
         description: 'Sample target created by quick setup',
+      }),
+      role: this.store.createRecord('role', {
+        name: 'crm_db_connect_role',
       }),
     };
   }
@@ -48,19 +53,20 @@ export default class ScopesScopeOnboardingQuickSetupCreateResourcesRoute extends
 
   @action
   @loading
-  @notifyError(({ message }) => message)
-  async submit(event, hostAddress = '1234', targetPort = '42') {
+  @notifyError(function () {
+    return this.intl.t('errors.quick-setup-failed.description');
+  })
+  async createResources(hostAddress, targetPort) {
     try {
       await this.createOnboardingResourcesAndRedirect(hostAddress, targetPort);
     } catch (e) {
-      const message = this.intl.t('errors.quick-setup-failed.description');
       this.router.replaceWith('scopes.scope', 'global');
-      throw new Error(message);
+      throw new Error();
     }
   }
 
   async createOnboardingResourcesAndRedirect(hostAddress, targetPort) {
-    const { org, project, hostCatalog, hostSet, host, target } =
+    const { org, project, hostCatalog, hostSet, host, target, role } =
       this.currentModel;
     // The Procedure
     await org.save();
@@ -79,13 +85,20 @@ export default class ScopesScopeOnboardingQuickSetupCreateResourcesRoute extends
       target.default_port = targetPort;
       await target.save();
       await target.addHostSources([hostSet.id]);
+      role.scopeID = org.id;
+      role.grant_scope_id = project.id;
+      await role.save();
+      await role.saveGrantStrings([
+        `type=target;actions=list`,
+        `id=${target.id};actions=authorize-session`,
+      ]);
       this.router.transitionTo(
-        'scopes.scope.onboarding.quick-setup.create-resources.success'
+        'onboarding.quick-setup.create-resources.success'
       );
     } else {
       this.router.transitionTo(
         'scopes.scope.host-catalogs.host-catalog.hosts',
-        org.id,
+        project.id,
         hostCatalog.id
       );
     }

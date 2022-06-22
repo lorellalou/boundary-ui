@@ -9,9 +9,11 @@ save: Save
 submit: Submit
 manage: Manage
 confirm: Confirm
+done: Done
 ok: OK
 deny: Deny
 help: Need help?
+next: Next
 back: Back
 retry: Retry
 get-topic-help: Get help for this topic
